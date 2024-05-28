@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using Training.Models;
 
 namespace Training.Controllers
 {
@@ -23,6 +24,7 @@ namespace Training.Controllers
                 return BadRequest("Please provide a valid name.");
             }
         }
+
 
         [Route("getinfo")]
         public IActionResult GetInfo()
@@ -110,14 +112,19 @@ namespace Training.Controllers
             return Json(result);
         }
 
-        [Route("responces")]
-        [HttpGet]
+        [HttpGet("responces")]
 
         public HttpResponseMessage GetCompanyName()
+
         {
+
+            Console.WriteLine("Hello workd");
+
+          
             try
             {
                 //string mReponseList = "Easy design systems";
+                Console.WriteLine("Hello");
                 var response = new
                 {
                     ResponseCode = 2000,
@@ -142,6 +149,18 @@ namespace Training.Controllers
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 return new HttpResponseMessage(HttpStatusCode.BadRequest) { Content = content };
             }
+        }
+
+
+        public IActionResult MyAction()
+        {
+            var model = new TestModel
+            {
+                Id = 1,
+                Name = "Product A",
+                Price = 99,
+            };
+            return View(model);
         }
 
 
