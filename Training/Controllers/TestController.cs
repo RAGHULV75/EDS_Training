@@ -1,4 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using System.Net;
+using System.Text;
+using System.Text.Json;
 
 namespace Training.Controllers
 {
@@ -19,7 +24,7 @@ namespace Training.Controllers
             }
         }
 
-            [Route("getinfo")]
+        [Route("getinfo")]
         public IActionResult GetInfo()
         {
             var userInfo = new
@@ -36,7 +41,7 @@ namespace Training.Controllers
         [HttpGet("getstringasjson")]
         public IActionResult GetStringAsJson()
         {
-            var namePairs = new 
+            var namePairs = new
             {
                 First_Name = "John ",
                 Secound_Name = "Doe",
@@ -61,13 +66,13 @@ namespace Training.Controllers
         [HttpGet("Airthmatic_Operation")]
         public IActionResult Add()
         {
-            
+
             var namePairs = new
             {
-                Add      = 22 + 55,
+                Add = 22 + 55,
                 subtract = 50 - 30,
                 multiply = 30 * 2,
-                divide   = 500 / 2,
+                divide = 500 / 2,
             };
 
             return Json(namePairs);
@@ -95,7 +100,7 @@ namespace Training.Controllers
         public IActionResult GetRandomNumberAsJson()
         {
             Random random = new Random();
-            int randomNumber = random.Next(1, 100); 
+            int randomNumber = random.Next(1, 100);
 
             var result = new
             {
@@ -104,6 +109,43 @@ namespace Training.Controllers
 
             return Json(result);
         }
+
+        [Route("responces")]
+        [HttpGet]
+
+        public HttpResponseMessage GetCompanyName()
+        {
+            try
+            {
+                //string mReponseList = "Easy design systems";
+                var response = new
+                {
+                    ResponseCode = 2000,
+                    ResponseMessage = "Success",
+                    ResponseList = "Easy design systems"
+                };
+
+                var json = JsonSerializer.Serialize(response);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                return new HttpResponseMessage(HttpStatusCode.OK) { Content = content };
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new
+                {
+                    ResponseCode = 5000,
+                    ResponseMessage = ex.Message,
+                    ResponseList = "Easy design systems"
+                };
+
+                var json = JsonSerializer.Serialize(errorResponse);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                return new HttpResponseMessage(HttpStatusCode.BadRequest) { Content = content };
+            }
+        }
+
+
+
 
     }
 }
