@@ -9,6 +9,8 @@
 
     <br />
 
+
+
     <!-- Button for /Test/Greetings -->
     <form action="/Test/Greetings" method="get">
         <input type="text" name="name" />
@@ -64,7 +66,12 @@
     </form>
 
     <br />
- 
-    responces
+
+    <form action="/Res/SendData" method="post">
+        <input type="text" placeholder="Name" name="name" />
+        <input type="text" name="Message" />
+        <button action="/" formmethod="post">Send data</button>
+    </form>
    
 </div>
+

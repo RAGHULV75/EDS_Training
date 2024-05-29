@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Newtonsoft.Json;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -27,26 +28,22 @@ namespace Training.Controllers
 
 
         [Route("getinfo")]
-        public IActionResult GetInfo()
+        public String GetInfo()
         {
-            var userInfo = new
-            {
-                UserName = "John Doe",
-                UserEmail = "john@example.com",
-                MobileNumber = "123-456-7890",
-                Address = "123 Main St, City"
-            };
+            String UserName = "John Doe";
 
-            return Json(userInfo);
+            return UserName;
         }
 
-        [HttpGet("getstringasjson")]
+        [HttpGet("GetRes")]
         public IActionResult GetStringAsJson()
         {
             var namePairs = new
             {
-                First_Name = "John ",
-                Secound_Name = "Doe",
+                ResponceCode = 204,
+                ResponceMessage = "RAGHUL V",
+                ResponceList = "hello world",
+               
             };
 
             return Json(namePairs);
@@ -112,59 +109,100 @@ namespace Training.Controllers
             return Json(result);
         }
 
-        [HttpGet("responces")]
-
-        public HttpResponseMessage GetCompanyName()
-
+        [Route("hello/greetings")]
+        [HttpGet]
+        public HttpResponseMessage WelcomeGreetings()
         {
-
-            Console.WriteLine("Hello workd");
-
-          
             try
             {
-                //string mReponseList = "Easy design systems";
-                Console.WriteLine("Hello");
-                var response = new
+                // Prepare the welcome message
+                string welcomeMessage = "Welcome!";
+
+                // Create a successful HTTP response with the message
+                var response = new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    ResponseCode = 2000,
-                    ResponseMessage = "Success",
-                    ResponseList = "Easy design systems"
+                    Content = new StringContent(welcomeMessage, Encoding.UTF8, "text/plain")
                 };
 
-                var json = JsonSerializer.Serialize(response);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                return new HttpResponseMessage(HttpStatusCode.OK) { Content = content };
+                return response;
             }
             catch (Exception ex)
             {
-                var errorResponse = new
+                // Handle exceptions gracefully
+                return new HttpResponseMessage(HttpStatusCode.InternalServerError)
                 {
-                    ResponseCode = 5000,
-                    ResponseMessage = ex.Message,
-                    ResponseList = "Easy design systems"
+                    Content = new StringContent($"An error occurred: {ex.Message}", Encoding.UTF8, "text/plain")
                 };
-
-                var json = JsonSerializer.Serialize(errorResponse);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                return new HttpResponseMessage(HttpStatusCode.BadRequest) { Content = content };
             }
         }
 
 
-        public IActionResult MyAction()
+
+        dynamic APIOutputResponse;
+
+        [Route("GetData")]
+        [HttpGet]
+        public HttpResponseMessage Details()
         {
-            var model = new TestModel
-            {
-                Id = 1,
-                Name = "Product A",
-                Price = 99,
-            };
-            return View(model);
+            string name = "hello world";
+            var response = CreateResponse(220, name, "How Are You?");
+            return response;
         }
 
 
+        [Route("GetString")]
+        [HttpGet]
+
+        public HttpResponseMessage GetCompanyName()
+        {
+            try
+            {
+                string mReponseList = "Easy design systems";
+                APIOutputResponse = CreateResponse(2000, "Success", mReponseList);
+            }
+            catch (Exception ex)
+            {
+                APIOutputResponse = CreateResponse(5000, ex.Message, "");
+            }
+
+            return APIOutputResponse;
+        }
+
+        private HttpResponseMessage CreateResponse(int aResponseCode, string aReponseMessage, dynamic aResponseList)
+        {
+            APIResponse mAPIResponse = null;
+            HttpResponseMessage mHttpResponseMessage = null;
+            try
+            {
+                mHttpResponseMessage = new HttpResponseMessage();
+                mAPIResponse = new APIResponse();
+                mAPIResponse.ResponseCode = aResponseCode;
+                mAPIResponse.ResponseMessage = aReponseMessage;
+                mAPIResponse.ResponseList = aResponseList;
+                if (aResponseCode == 5000)
+                {
+                    mHttpResponseMessage.StatusCode = HttpStatusCode.BadRequest;
+                }
+                mHttpResponseMessage.Content = new StringContent(JsonConvert.SerializeObject(mAPIResponse), Encoding.UTF8, "application/json");
+            }
+            catch (Exception ex)
+            {
+                mAPIResponse.ResponseCode = 5000;
+                mAPIResponse.ResponseMessage = ex.Message;
+                mHttpResponseMessage.StatusCode = HttpStatusCode.BadRequest;
+                mHttpResponseMessage.Content = new StringContent(JsonConvert.SerializeObject(mAPIResponse), Encoding.UTF8, "application/json");
+            }
+            return mHttpResponseMessage;
+        }
+
+        public class APIResponse
+        {
+            public int ResponseCode { get; set; }
+            public string ResponseMessage { get; set; }
+            public dynamic ResponseList { get; set; }
+        }
 
 
     }
 }
+
